@@ -1,5 +1,4 @@
 require "fileutils"
-
 namespace :radiant do
   namespace :extensions do
     namespace :sape_links do
@@ -7,8 +6,10 @@ namespace :radiant do
       desc "Runs the migration of the Sape Links extension"
       task :migrate => :environment do
         require 'radiant/extension_migrator'
-        	plugin_root = File.join(RAILS_ROOT, "vendor", "extensions", "active_sape")
-        	FileUtils.cp(File.join(plugin_root, "sape.yml"), File.join(RAILS_ROOT, "config"))
+        if ENV["VERSION"]
+          SapeLinksExtension.migrator.migrate(ENV["VERSION"].to_i)
+        else
+          SapeLinksExtension.migrator.migrate
         end
       end
 
@@ -22,6 +23,11 @@ namespace :radiant do
           mkdir_p RAILS_ROOT + directory, :verbose => false
           cp file, RAILS_ROOT + path, :verbose => false
         end
+
+        require 'radiant/extension_migrator'
+      	extention_root = File.join(RAILS_ROOT, "vendor", "extensions", "sape_links")
+      	FileUtils.cp(File.join(extention_root, "sape.yml"), File.join(RAILS_ROOT, "config"))
+
       end
     end
   end
